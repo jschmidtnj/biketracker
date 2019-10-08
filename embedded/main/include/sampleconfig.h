@@ -1,9 +1,17 @@
-const char *ssid  = "ssid";
-const char *wifiPassword = "pass";
-const char *mqttServer = "server.cloudmqtt.com";
-const int mqttPort = 123;
-const char *mqttUser = "user";
-const char *mqttPassword = "pass";
-const char *controlTopic = "rgb/control";
-const char *errorTopic = "rgb/error";
-const char *servicePassword = "pass";
+// MQTT params
+#define MQTT_SERVER     "m10.cloudmqtt.com"
+#define MQTT_PORT       16644
+#define MQTT_USERNAME   "MQTT_USERNAME"
+#define MQTT_PASSWORD   "MQTT_PASSWORD"
+
+// MQTT topics
+#define GPS_TOPIC       "location"
+#define TEMP_TOPIC      "temperature"
+#define PRESSURE_TOPIC  "pressure"
+#define ALTITUDE_TOPIC  "altitude"
+#define HUMIDITY_TOPIC  "humidity"
+#define VOLTAGE_TOPIC   "voltage"
+#define CURRENT_TOPIC   "current"
+#define POWER_TOPIC     "power"
+#define BATT_TOPIC      "battery"
+#define COMMAND_TOPIC   "command"

@@ -1,0 +1,12 @@
+# ignore env files
+.env.development
+.env.production
+
+# everything else
+node_modules/
+public
+.gatsby-context.js
+.DS_Store
+.intermediate-representation/
+.cache/
+.vscode/
