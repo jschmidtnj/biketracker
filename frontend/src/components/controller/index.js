@@ -12,7 +12,9 @@ const topics = {
   command: 'command',
   error: 'error',
 }
-AIzaSyBALUhrT0nq5rNZmIF - 5 - SkzKkjFokgnY0
+
+const pollingRate = 1 // times per minute
+
 const mqttOptions = {
   port: process.env.GATSBY_MQTT_PORT,
   host: process.env.GATSBY_MQTT_HOST,
@@ -56,6 +58,7 @@ class Controller extends React.Component {
         power: 0,
         battery: 0,
       },
+      pollingInterval: null,
     }
   }
 
@@ -145,6 +148,20 @@ class Controller extends React.Component {
           break
       }
     })
+    this.state.client.publish(topics.command, 'connect', {}, err => {
+      if (err)
+        toast.error(`got error with connect command: ${JSON.stringify(err)}`)
+    })
+    this.state.pollingInterval = setInterval(() => {
+      this.state.client.publish(topics.command, 'poll', {}, err => {
+        if (err)
+          toast.error(`got error with polling command: ${JSON.stringify(err)}`)
+      })
+    }, pollingRate * 1000 * 60)
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.state.pollingInterval)
   }
 
   render() {
