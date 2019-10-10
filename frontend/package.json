@@ -29,6 +29,7 @@
     "gatsby-transformer-remark": "2.6.20",
     "gatsby-transformer-sharp": "2.2.13",
     "google-map-react": "^1.1.5",
+    "jquery": "^3.4.1",
     "mqtt": "^3.0.0",
     "rc-slider": "^8.7.1",
     "react-select": "^3.0.4",

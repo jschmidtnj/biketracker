@@ -5,7 +5,7 @@ const Footer = ({ author, title }) => (
   <div className="footer">
     <div className="container">
       <hr className="border-primary" />
-      <p>copyright 2019 Joshua Schmidt</p>
+      <p>© 2019 Joshua Schmidt</p>
     </div>
   </div>
 )

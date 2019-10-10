@@ -2,8 +2,14 @@ import React from 'react'
 import { connect } from 'mqtt'
 import { ToastContainer, toast } from 'react-toastify'
 import GoogleMapReact from 'google-map-react'
+import $ from 'jquery'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import 'react-toastify/dist/ReactToastify.min.css'
 import './style.scss'
+
+const defaultLatitude = 40.742702
+const defaultLongitude = -74.027167
+const defaultZoom = 13
 
 const topics = {
   location: 'location',
@@ -31,33 +37,47 @@ const mqttOptions = {
   encoding: 'utf8',
 }
 
-const defaultLatitude = 59.95
-const defaultLongitude = 30.33
-const defaultZoom = 11
+class TheMap extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      map: null,
+    }
+  }
+  componentDidUpdate(prevProps) {
+    if (
+      this.state.map !== null &&
+      (this.props.lat !== prevProps.lat || this.props.lgn !== prevProps.lgn)
+    )
+      this.state.map.setCenter({ lat: this.props.lat, lng: this.props.lgn })
+  }
+  render() {
+    const Marker = () => {
+      return (
+        <span className="location" data-toggle="tooltip" title="bike"></span>
+      )
+    }
+    return (
+      <GoogleMapReact
+        bootstrapURLKeys={{ key: process.env.GATSBY_GOOGLE_MAPS_API_KEY }}
+        defaultCenter={{ lat: defaultLatitude, lng: defaultLongitude }}
+        defaultZoom={defaultZoom}
+        yesIWantToUseGoogleMapApiInternals
+        onGoogleApiLoaded={({ map }) => (this.state.map = map)}
+      >
+        <Marker lat={this.props.lat} lng={this.props.lgn} />
+      </GoogleMapReact>
+    )
+  }
+}
 
 class Controller extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      location: {
-        speed: 0,
-        latitude: Object.create(0, defaultLatitude),
-        longitude: Object.create(0, defaultLongitude),
-        altitude: 0,
-        heading: 0,
-      },
-      weather: {
-        temperature: 0,
-        pressure: 0,
-        altitude: 0,
-        humidity: 0,
-      },
-      battery: {
-        voltage: 0,
-        current: 0,
-        power: 0,
-        battery: 0,
-      },
+      location: [-1, -1, -1, -1, -1],
+      weather: [-1, -1, -1, -1],
+      battery: [-1, -1, -1, -1],
       pollingInterval: null,
     }
   }
@@ -112,35 +132,19 @@ class Controller extends React.Component {
         case topics.location:
           const locationData = messageStr.split(',')
           this.setState({
-            location: {
-              speed: locationData[0],
-              latitude: locationData[1],
-              longitude: locationData[2],
-              altitude: locationData[3],
-              heading: locationData[4],
-            },
+            location: locationData,
           })
           break
         case topics.weather:
           const weatherData = messageStr.split(',')
           this.setState({
-            weather: {
-              temperature: weatherData[0],
-              pressure: weatherData[1],
-              altitude: weatherData[2],
-              humidity: weatherData[3],
-            },
+            weather: weatherData,
           })
           break
         case topics.battery:
           const batteryData = messageStr.split(',')
           this.setState({
-            battery: {
-              voltage: batteryData[0],
-              current: batteryData[1],
-              power: batteryData[2],
-              battery: batteryData[3],
-            },
+            battery: batteryData,
           })
           break
         default:
@@ -166,7 +170,7 @@ class Controller extends React.Component {
 
   render() {
     return (
-      <div>
+      <div style={{ marginBottom: '2vh' }}>
         <ToastContainer
           position="top-right"
           autoClose={5000}
@@ -178,26 +182,65 @@ class Controller extends React.Component {
           draggable
           pauseOnHover
         />
-        <div style={{ height: '100vh', width: '100%' }}>
-          <GoogleMapReact
-            bootstrapURLKeys={{ key: process.env.GATSBY_GOOGLE_MAPS_API_KEY }}
-            defaultCenter={{
-              lat: this.state.location.latitude,
-              lgn: this.state.location.longitude,
-            }}
-            defaultZoom={defaultZoom}
-          >
-            <span
-              lat={this.state.location.latitude}
-              lng={this.state.location.longitude}
-              className="location"
-              data-toggle="tooltip"
-              title="bike"
-            ></span>
-          </GoogleMapReact>
+        <div style={{ height: '92.5vh', width: '100%' }}>
+          <TheMap lat={this.state.location[1]} lgn={this.state.location[2]} />
         </div>
-        <div>{this.state.weather}</div>
-        <div>{this.state.battery}</div>
+        <table className="table table-hover table-dark">
+          <tbody>
+            <tr>
+              <th scope="row">latitude</th>
+              <td>{this.state.location[1]}°</td>
+            </tr>
+            <tr>
+              <th scope="row">longitude</th>
+              <td>{this.state.location[2]}°</td>
+            </tr>
+            <tr>
+              <th scope="row">speed</th>
+              <td>{this.state.location[0]} km/hr</td>
+            </tr>
+            <tr>
+              <th scope="row">heading</th>
+              <td>{this.state.location[3]}°</td>
+            </tr>
+            <tr>
+              <th scope="row">altitude</th>
+              <td>{this.state.location[4]} m</td>
+            </tr>
+            <tr>
+              <th scope="row">temperature</th>
+              <td>{this.state.weather[0]}°C</td>
+            </tr>
+            <tr>
+              <th scope="row">pressure</th>
+              <td>{this.state.weather[1]} hPa</td>
+            </tr>
+            <tr>
+              <th scope="row">altitude</th>
+              <td>{this.state.weather[2]} m</td>
+            </tr>
+            <tr>
+              <th scope="row">humidity</th>
+              <td>{this.state.weather[3]}%</td>
+            </tr>
+            <tr>
+              <th scope="row">voltage</th>
+              <td>{this.state.battery[0]} V</td>
+            </tr>
+            <tr>
+              <th scope="row">current</th>
+              <td>{this.state.battery[1]} A</td>
+            </tr>
+            <tr>
+              <th scope="row">power</th>
+              <td>{this.state.battery[2]} W</td>
+            </tr>
+            <tr>
+              <th scope="row">battery</th>
+              <td>{this.state.battery[3]}%</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     )
   }

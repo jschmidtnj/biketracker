@@ -1,6 +1,6 @@
 module.exports = {
   siteMetadata: {
-    title: 'Bike Track',
+    title: 'Bike Tracker',
     description: 'bike tracker',
     siteUrl: 'https://biketrack.netlify.com',
     author: 'joshuaschmidt',
